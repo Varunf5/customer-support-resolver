@@ -1,16 +1,13 @@
 [project]
 name = "customer-support-resolver"
 version = "0.1.0"
-description = "Customer Support AI OpenEnv Environment"
-authors = [{ name = "Varun" }]
 dependencies = [
     "flask",
-    "openai",
     "openenv>=0.2.0"
 ]
 
 [project.scripts]
-server = "app:app"
+server = "server.app:main"
 
 [tool.openenv]
 env = "env.environment:SupportTicketEnvironment"
