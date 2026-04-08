@@ -2,7 +2,7 @@
 name = "customer-support-resolver"
 version = "0.1.0"
 description = "Customer Support AI OpenEnv Environment"
-authors = [{name = "Varun"}]
+authors = [{ name = "Varun" }]
 dependencies = [
     "flask",
     "openai"
@@ -10,3 +10,4 @@ dependencies = [
 
 [tool.openenv]
 env = "env.environment:SupportTicketEnvironment"
+entrypoint = "inference.py"
