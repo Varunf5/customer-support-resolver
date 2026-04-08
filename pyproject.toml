@@ -5,9 +5,12 @@ description = "Customer Support AI OpenEnv Environment"
 authors = [{ name = "Varun" }]
 dependencies = [
     "flask",
-    "openai"
+    "openai",
+    "openenv>=0.2.0"
 ]
+
+[project.scripts]
+server = "app:app"
 
 [tool.openenv]
 env = "env.environment:SupportTicketEnvironment"
-entrypoint = "inference.py"
