@@ -1,0 +1,129 @@
+name: customer-support-ticket-resolver
+description: |
+  An OpenEnv-compliant environment for simulating customer support ticket resolution.
+  An AI agent resolves customer support tickets by classifying them, generating responses,
+  and appropriately escalating or closing tickets based on priority and content.
+
+version: "1.0.0"
+
+environment:
+  class: SupportTicketEnvironment
+  module: env.environment
+
+observation_schema:
+  ticket_id:
+    type: string
+    description: Unique identifier for the support ticket
+  customer_message:
+    type: string
+    description: Initial message from the customer
+  priority:
+    type: string
+    enum: [low, medium, high]
+    description: Priority level of the ticket
+  complexity:
+    type: string
+    enum: [simple, moderate, complex]
+    description: Complexity level of the issue
+  history:
+    type: array
+    description: Conversation history with messages
+    items:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [customer, agent]
+        content:
+          type: string
+        timestamp:
+          type: string
+          nullable: true
+
+action_schema:
+  action_type:
+    type: string
+    enum: [classify, respond, escalate, close]
+    description: Type of action to take
+  content:
+    type: string
+    nullable: true
+    description: Response content for respond action
+  category:
+    type: string
+    nullable: true
+    enum: [billing, technical, account, general]
+    description: Category for classify action
+
+reward_schema:
+  type: float
+  minimum: 0.0
+  maximum: 1.0
+  description: Reward signal between 0.0 and 1.0
+
+done_schema:
+  type: boolean
+  description: Whether the episode has terminated
+
+info_schema:
+  step_count:
+    type: integer
+  action_type:
+    type: string
+  action_valid:
+    type: boolean
+  message:
+    type: string
+    nullable: true
+
+api_requirements:
+  - name: step
+    signature: step(action) -> (observation, reward, done, info)
+    description: Execute one step in the environment
+    returns: Tuple[Observation, float, bool, EnvironmentInfo]
+
+  - name: reset
+    signature: reset() -> observation
+    description: Reset environment and return initial observation
+    returns: Observation
+
+  - name: state
+    signature: state() -> Dict[str, Any]
+    description: Return current environment state
+    returns: Dictionary with environment state
+
+tasks:
+  - name: easy
+    description: Classify the support ticket correctly
+    goal: Assign the correct category to an incoming support ticket
+    success_criteria:
+      - Single action (classify)
+      - Valid category selected
+      - Quick resolution
+    max_steps: 1
+    reward_expectation: 0.3
+
+  - name: medium
+    description: Generate a helpful response to customer
+    goal: Classify ticket and provide substantive help
+    success_criteria:
+      - Two actions (classify, respond)
+      - Correct classification
+      - Response length >= 20 characters
+    max_steps: 2
+    reward_expectation: 0.7
+
+  - name: hard
+    description: Full ticket resolution
+    goal: Classify, respond, and appropriately escalate or close
+    success_criteria:
+      - Three actions (classify, respond, escalate/close)
+      - Correct classification
+      - Quality response
+      - Appropriate final action based on priority
+    max_steps: 3
+    reward_expectation: 0.9
+
+episode_params:
+  max_steps: 5
+  episode_termination: End after reaching max_steps or after escalate/close action
